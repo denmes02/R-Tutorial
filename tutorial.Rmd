@@ -1,5 +1,5 @@
 ---
-title: "Hello, Tutorial!"
+title: "R Tutorial"
 output: learnr::tutorial
 runtime: shiny_prerendered
 ---
@@ -8,9 +8,25 @@ runtime: shiny_prerendered
 library(learnr)
 ```
 
-This code computes the answer to one plus one,
-change it so it computes two plus two:
+## Datenbasis
+### Beschreibung der Datenherkunft
+This code computes the answer to one plus one, change it so it computes two plus two:
+
+### Übung zur Datendarstellung
 
 ```{r addition, exercise=TRUE}
 1 + 1
 ```
+
+## Datenaufbereitung
+
+
+## Datenanalyse
+
+
+## Ergebnistest
+
+
+## Teaminfos
+
+
