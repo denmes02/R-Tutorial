@@ -13,7 +13,6 @@ data <- read_excel(file_path, sheet = "Player Per Game")
 ```
 
 
-
 ## Datenbasis
 ### Beschreibung der Datenherkunft
 This code computes the answer to one plus one, change it so it computes two plus two:
@@ -25,6 +24,18 @@ This code computes the answer to one plus one, change it so it computes two plus
 ```
 
 ## Datenaufbereitung
+Bei diesem interaktiven Tutorial lernen Sie, wie das Einfügen und korrigieren von Inkosistenzen, sowie das Entfernen von Leerstellen funktioniert.
+
+### Einfügen
+
+question("Welche Funktion wird genutzt, um XLS-Dateien in R einzulesen?",
+  answer("read_excel", correct = TRUE),
+  answer("load_excel", message = "Diese Funktion existiert nicht in R."),
+  answer("import_excel", message = "Diese Funktion existiert nicht in R.")
+  allow_retry = TRUE
+)
+
+### Inkonsistenzen und Leerstellen beheben
 
 
 ## Datenanalyse
@@ -35,7 +46,7 @@ Berechnen Sie den Mittelwert mit `mean()` von `data`
 
 ```{r mean, exercise=TRUE}
 mean()
-````
+```
 
 ### Median
 ### Varianz
