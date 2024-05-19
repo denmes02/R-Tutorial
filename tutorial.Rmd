@@ -6,7 +6,13 @@ runtime: shiny_prerendered
 
 ```{r setup, include=FALSE}
 library(learnr)
+library(readxl)
+
+file_path <- "Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx"
+data <- read_excel(file_path, sheet = "Player Per Game")
 ```
+
+
 
 ## Datenbasis
 ### Beschreibung der Datenherkunft
@@ -22,9 +28,22 @@ This code computes the answer to one plus one, change it so it computes two plus
 
 
 ## Datenanalyse
+In diesem Tutorial lernen Sie, wie Eigenschaften von Daten aufgerufen werden und wie diese Dargestellt werden.
 
+### Mittelwert
+Berechnen Sie den Mittelwert mit `mean()` von `data`
 
-## Ergebnistest
+```{r mean, exercise=TRUE}
+mean()
+````
+
+### Median
+### Varianz
+### Standardabweichung
+### Lineare Regression
+### Hypothesentest
+
+## Ergebnispräsentation
 
 
 ## Teaminfos
