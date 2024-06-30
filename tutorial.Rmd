@@ -1,5 +1,5 @@
 ---
-title: "R Tutorial"
+title: "R Tutorial "
 output: learnr::tutorial
 runtime: shiny_prerendered
 ---
@@ -9,39 +9,359 @@ library(learnr)
 library(readxl)
 
 file_path <- "Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx"
-data <- read_excel(file_path, sheet = "Player Per Game")
+data <- read_excel(file_path, sheet = "Player Per Game", range = cell_limits(c(1, 1), c(2914, 35)))
+
+pos <- data$pos
+x3pa_per_game <- data$x3pa_per_game
+x3p_percent <- as.numeric(data$x3p_percent)
+pos_counts <- table(data$pos)
+relevant_positions <- c("C", "PF", "SF", "SG", "PG")
+pos_counts <- pos_counts[names(pos_counts) %in% relevant_positions]
+positions <- names(pos_counts)
+haeufigkeit <- as.numeric(pos_counts)
 ```
 
+## [Einführung]{style="color:#0085ff;"}
 
-## Datenbasis
-### Beschreibung der Datenherkunft
-This code computes the answer to one plus one, change it so it computes two plus two:
+In diesem kruzen aber informativen Tutorial lernst du die Grundlagen der Datenaufbereitung- und Verarbeitung mit der Hilfe der Programmiersprache R. Im Laufe dieses interaktiven Tutorials werden dir viele wichtige Begriffe und Vorgehensweisen anhand von Beispielen erläutert und nähergebracht.
 
-### Übung zur Datendarstellung
+Wenn du dich vorab mit einigen Grundbegriffen bekannt machen willst kannst du dir das folgende Video ansehen:
 
-```{r addition, exercise=TRUE}
-1 + 1
+![](https://www.youtube.com/watch?v=YGqZoYccIiY&ab_channel=FlorianDalwigk){width="80%"}
+
+[**Tipps für das Tutorial**]{style="color:#0085ff;"}
+
+1.  Reihenfolge der Kapitel: Es wird empfohlen, die Kapitel in der vorgegebenen Reihenfolge durchzuarbeiten. Jedes Kapitel baut auf den vorherigen auf, sodass du das Gelernte schrittweise vertiefen kannst.
+
+2.  Interaktive Übungen: Nutze die interaktiven Übungen, um das Gelernte sofort anzuwenden und zu festigen.
+
+3.  Hinweise und Lösungen: Wenn du einmal nicht weiterkommst, schau dir die Hinweise an oder nutze die bereitgestellten Lösungen, um deine Ansätze zu überprüfen.
+
+Wir wünschen dir nun viel Spaß und Erfolg beim Lernen und Entdecken.
+
+## [Datenbasis]{style="color:#0085ff;"}
+
+### [Was ist eine Datenbasis?]{style="color:#005AAE;"}
+
+Der Begriff [Datenbasis]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} beschreibt eine große Ansammlung von Daten ,die erhoben wurden, um einen bestimmten Zweck zu erfüllen. Die erhobenen Daten ermöglichen es Hypothesen aufzustellen und evt. Rückschlüsse zu ziehen bzw. Zusammenhänge zu finden.
+
+### [Beschreibung der Datenherkunft]{style="color:#005AAE;"}
+
+Die Datenbasis [**"Player_per_game"**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} ist ein von der Seite "Kaggle" stammender Datensatz. Den originalen Datensatz findest du [hier](https://www.kaggle.com/datasets/sumitrodatta/nba-aba-baa-stats?select=Player+Per+Game.csv). Dieser Datensatz beschreibt die Pro-Spiel-Werte einzelner Spieler seit 1947 bis heute. Dies beinhaltet Werte wie die erzielten Werte pro Spiel bis hin zu verschiedensten Wurfquoten.
+
+### [Attribute]{style="color:#005AAE;"}
+
+|   Variablen   |  Datentyp   |  Skala   |                                    Beschreibung                                    |
+|:----------------:|:----------------:|:----------------:|:-----------------:|
+|    seas_id    |  Geordnet   | Ordinal  |                      Identifikator für eine bestimmte Saison                       |
+|    season     | Kategorisch | Nominal  |                                  Aktuelle Saison                                   |
+|   player_id   |  Geordnet   | Ordinal  |                     Identifikator für einen bestimmten Spieler                     |
+|    player     | Kategorisch | Nominal  |                                 Name des Spielers                                  |
+|  birth_year   | Kategorisch | Nominal  |                              Geburtsjahr des Spielers                              |
+|      pos      | Kategorisch | Nominal  |                               Position des Spielers                                |
+|      age      | Quantitativ | Metrisch |                                 Alter des Spielers                                 |
+|  experience   |  Geordnet   | Ordinal  |                            Länge der Karriere in Jahren                            |
+|      lg       | Kategorisch | Nominal  |                         Die Liga in der der Spieler spielt                         |
+|      tm       | Kategorsich | Nominal  |                           Das aktuelle Team des Spielers                           |
+|       g       | Quantitativ | Metrisch |                           Gespielte Spiele in der Saison                           |
+|      gs       | Quantitativ | Metrisch |               Einsätze in der Startformation in der aktuellen Saison               |
+|  mp_per_game  | Quantitativ | Metrisch |        Durchschnittlich gespielte Minuten pro Spiel in der aktuellen Saison        |
+|  fg_per_game  | Quantitativ | Metrisch |        Getroffene Würfe aus dem Innenfeld pro Spiel in der aktuellen Saison        |
+| fga_per_game  | Quantitativ | Metrisch |          Wurfversuche aus dem Innenfeld pro Spiel in der aktuellen Saison          |
+|  fg_percent   | Quantitativ | Metrisch |      Prozentsatz getroffener Würfe aus dem Innenfeld in der aktuellen Saison       |
+| x3p_per_game  | Quantitativ | Metrisch |                Getroffene Dreier pro Spiel in der aktuellen Saison                 |
+| x3pa_per_game | Quantitativ | Metrisch |                Dreierwurfversuche pro Spiel in der aktuellen Saison                |
+|  x3p_percent  | Quantitativ | Metrisch |               Prozentsatz getroffener Dreier in der aktuellen Saison               |
+| x2p_per_game  | Quantitativ | Metrisch |        Getroffene Würfe aus dem Innenfeld pro Spiel in der aktuellen Saison        |
+| x2pa_per_game | Quantitativ | Metrisch |          Wurfversuche aus dem Innenfeld pro Spiel in der aktuellen Saison          |
+|  x2p_percent  | Quantitativ | Metrisch |      Prozentsatz getroffener Würfe aus dem Innenfeld in der aktuellen Saison       |
+| e_fg_percent  | Quantitativ | Metrisch | Effektiver Prozentsatz getroffener Würfe aus dem Innenfeld in der aktuellen Saison |
+|  ft_per_game  | Quantitativ | Metrisch |               Getroffene Freiwürfe pro Spiel in der aktuellen Saison               |
+| fta_per_game  | Quantitativ | Metrisch |                 Freiwurfversuche pro Spiel in der aktuellen Saison                 |
+|  ft_percent   | Quantitativ | Metrisch |             Prozentsatz getroffener Freiwürfe in der aktuellen Saison              |
+| orb_per_game  | Quantitativ | Metrisch |            Anzahl offensiver Rebounds pro Spiel in der aktuellen Saison            |
+| drb_per_game  | Quantitativ | Metrisch |            Anzahl defensiver Rebounds pro Spiel in der aktuellen Saison            |
+| trb_per_game  | Quantitativ | Metrisch |                 Anzahl Rebounds pro Spiel in der aktuellen Saison                  |
+| ast_per_game  | Quantitativ | Metrisch |                     Assists pro Spiel in der aktuellen Saison                      |
+| stl_per_game  | Quantitativ | Metrisch |                      Steals pro Spiel in der aktuellen Saison                      |
+| blk_per_game  | Quantitativ | Metrisch |                      Blocks pro Spiel in der aktuellen Saison                      |
+| tov_per_game  | Quantitativ | Metrisch |                     Turnover pro Spiel in der aktuellen Saison                     |
+|  pf_per_game  | Quantitativ | Metrisch |                Persönliche Fouls pro Spiel in der aktuellen Saison                 |
+| pts_per_game  | Quantitativ | Metrisch |                 Erzielte Punkte pro Spiel in der aktuellen Saison                  |
+
+### [Hypothesen]{style="color:#005AAE;"}
+
+In diesem Fall haben wir uns zwei Hypothesen gesucht, um den Datensatz näher zu untersuchen und um bestimmte Rückslüsse aus den Beobachteten Erkenntnissen ziehen zu können.
+
+1.  „Die Spieler der Boston Celtics werfen diese Saison im Schnitt mehr Dreier pro Spiel als die Spieler der Orlando Magic“
+
+2.  „Die Anzahl von Dreierwurfversuchen ist in den letzten 3 Jahren angestiegen“
+
+3.  „Der Schnitt erzielter Punkte pro Spiel ist in den letzten 10 Jahren kontinuierlich angestiegen“
+
+## [Datenaufbereitung]{style="color:#0085FF;"}
+
+Nachdem du die grundlegenden Fachbegriffe bezüglich Datenbasis kennengelernt und verstanden hast, versuchen wir nun zum ersten Mal mit Daten zu arbeiten. Daten können entweder als [**Primärdaten**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} (eigene Datenerhebung) oder als [**Sekundärdaten**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} (vorhandene Datensätze) vorliegen.
+
+Um mit einem Datensatz arbeitet zu können müssen erstmal grundlegende Regeln beachtet werden. Hierfür solltest du dir überlegen welche Daten des Datensatzes für dein Thema relevant sind. Dazu ist die Konsistenz des Datenformates wichtig. Hierbei sollten nummerische Werte nicht als String Werte gespeichert werden. Wie man mit solchen Inkonsistenzen umgeht findest du im Abschnitt [**Dateninkonsistenz**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"}. Da innerhalb Datensätze oft fehlende Werte enthalten sind, lernst du in den folgenden Abschnitten, wie du hierfür vorgehen solltest.
+
+### [Dateneinlesen]{style="color:#005AAE;"}
+
+Zunächst versuchen wir die [**Primärdaten**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} einzulesen durch einen Datensatz. Hierfür solltest du dir das jeweils sinnvolle Format der Daten überlegen. Wenn du also z.B. nach dem Alter fragst, so ist dies immer ein nummerischer Wert. Das Team wird hierbei als String gespeichert.
+
+1.  age - age (numeric: from 18 to 46)
+2.  team - tm (string: 'ABC')
+
+```{r echo=FALSE}
+#Zeigen der ersten 5 Zeilen von den 2 Merkmalen
+head(data[, c(7, 10)], n = 5)
 ```
 
-## Datenaufbereitung
-Bei diesem interaktiven Tutorial lernen Sie, wie das Einfügen und korrigieren von Inkosistenzen, sowie das Entfernen von Leerstellen funktioniert.
+Eine solche Definition hilft dir, nach der Datenerhebung mit den Daten zu arbeiten und bspw. einen zu finden.
 
-### Einfügen
+Um Daten zu erheben gibt es zwei Ansätze:
 
-question("Welche Funktion wird genutzt, um XLS-Dateien in R einzulesen?",
-  answer("read_excel", correct = TRUE),
-  answer("load_excel", message = "Diese Funktion existiert nicht in R."),
-  answer("import_excel", message = "Diese Funktion existiert nicht in R.")
-  allow_retry = TRUE
-)
+#### [**Vollerhebung**]{style="color:#005AAE;"}
 
-### Inkonsistenzen und Leerstellen beheben
+Eine [**Vollerhebung**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} erfasst alle Spieler der NBA. In der Praxis ist dies oft nicht durchführbar, da es sehr aufwendig und teuer sein kann. Wenn du zum Beispiel das Durchschnittsalter aller Spieler der NBA ermitteln möchtest, muss jeder einzelne Spieler befragt werden.
 
+#### [**Stichprobe**]{style="color:#005AAE;"}
+
+Da [**Vollerhebungen**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} oft unhandlich sind, verwendet man stattdessen eine Stichprobe. Hierbei wird eine Teilmenge der gesamten Gruppe ausgewählt, die repräsentativ für das Ganze sein soll. Bei der Auswahl einer Stichprobe in der NBA ist es wichtig, Spieler aus verschiedenen Teams und Positionen einzubeziehen, um Verzerrungen zu vermeiden und repräsentative Ergebnisse zu erhalten. Eine gut zusammengestellte Stichprobe gewährleistet, dass die Ergebnisse auf die gesamte Gruppe übertragen werden können und somit aussagekräftig und zuverlässig sind.
+
+#### [**Teilstichprobe**]{style="color:#005AAE;"}
+
+Eine Teilstichprobe ist eine Untergruppe aus deiner [**Stichprobe**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"}, die bestimmte gemeinsame Merkmale aufweist. Diese Untergruppe wird oft gebildet, um spezifische Analysen durchzuführen oder um bestimmte Hypothesen zu testen. Durch die Untersuchung einer Teilstichprobe können Forscher gezielter auf Fragen eingehen, die nur einen bestimmten Teil der gesamten Stichprobe betreffen, und so detailliertere Einblicke in bestimmte Aspekte der Forschungsfrage gewinnen. Teilstichproben können nach verschiedenen Kriterien gebildet werden, wie Alter, Geschlecht, Beruf oder anderen relevanten Merkmalen.
+
+Nachdem du eines dieser Verfahren angewendet hast, kannst du die Daten als nächsten Schritt in eine Excel-Tabelle eintragen, um sie anschließend für weitere Analysen zu nutzen.
+
+### [Verarbeitung der Daten]{style="color:#005AAE;"}
+
+Wenn du Daten erhoben hast oder einen bestehenden Datensatz verwenden möchtest, der unvollständig, inkonsistent oder fehlerhaft ist, besteht der erste Schritt darin, diese Mängel zu beheben. Dieser Vorgang wird als [**Datenaufbereitung**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} oder [**Datenbereinigung**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} bezeichnet und kann je nach Datentyp und den verwendeten Tools entweder manuell oder automatisch durchgeführt werden.
+
+Damit du starten kannst, musst du zunächst den Datensatz öffnen. Im Folgenden sind zwei Möglichkeiten, wie du zum Öffnen vorgehen kannst:
+
+[Excel]{style="color:#005AAE;"}
+
+Falls du einen bestehenden Datensatz hast, kannst du diesen einfach in Excel öffnen.
+
+[R]{style="color:#005AAE;"}
+
+Um einen bestehenden Datensatz in R einzulesen, kannst du den folgenden Befehl verwenden: `data <- read_excel("Link zum xslx File")`. Der Datensatz wird dann in der Variable `data` gespeichert. Um den Datensatz anzuzeigen, gib einfach den Variablennamen ein `data`.
+
+Wenn du eine csv-Datei einlesen möchtest funktioniert das vom Prinzip gleich, jedoch wird ein anderer Befehl genutzt. Im folgenden Video findest du noch die Anleitung zum Einfügen von csv-Dateien und ein weiteren Weg in R Dateien einzulesen.
+
+![](https://www.youtube.com/watch?v=Ia5Q1LlCCFc){width="80%"}
+
+#### [Zeit um dein Wissen über das Einfügen zu testen]{style="color:#005AAE;"}
+
+Lese die Excel-Datei "First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx" ein und zeige die ersten Zeilen an.
+
+```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
+#Füge hier den Auszuführenden Code ein
+```
+
+```{r print-limit-hint-1}
+Schritt 1: 
+Zunächst benötigen wir die richtige library um einlesen zu können. Da wir 
+eine xlsx Datei einlesen wollen, nutzen wir also die library(readxl)
+```
+
+```{r print-limit-hint-2}
+Du weißt noch nicht wie du weiter machen sollst? kein Problem ;)
+
+Schritt 2:
+Lese die Excel-Datei ein indem du deiner gewählten Variablen die 
+Funktion read_excel() mit dem gewünschten Pfad.
+
+Hinweis: Verwende den relativen Pfad 'data/Dateiname'
+```
+
+```{r print-limit-hint-3}
+Fast geschafft! 
+  
+Gib nicht auf, für unseren letzten Schritt 3 wollen wir nun überprüfen ob das 
+Einfügen erfolgreich war. Hierfür nutzt du head() und deinem Variablennamen
+aus Schritt 2.
+```
+
+```{r print-limit-hint-4}
+Achtung du kommst immernoch nicht weiter und weißt nicht was du machen sollst?
+Klick mich weiter und die Lösung erscheint :o
+```
+
+```{r print-limit-solution, show_col_types = FALSE}
+#Ist garnicht so schwer als gedacht oder? ;)
+
+# Schritt 1: Laden Sie das `readxl`-Paket
+library(readxl)
+
+# Schritt 2: Lese die Excel-Datei  ein
+daten <- read_excel("data/First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx")
+
+# Erste Zeilen des Datensatzes ausgeben, um zu überprüfen, ob das Einfügen erfolgreich war
+head(daten)
+```
+
+Du kannst den Datensatz auch filtern. Wenn du beispielsweise nur die ersten 20 Zeilen deines Datensatzes sehen möchtest, gib folgenden Befehl ein: `data[1:20, 1:10]`. Dadurch erhältst du die ersten 20 Zeilen und die ersten 10 Spalten deines Datensatzes.
+
+Zusätzlich kannst du bestimmte Spalten durch Angabe eines Vektors mit den gewünschten Spaltennummern oder -namen auswählen. Zum Beispiel, um die Spalten 3, 4 und 26 auszugeben, kannst du den Befehl `data[1:20, c(3, 4, 26)]` verwenden. Dies zeigt die ersten 20 Zeilen und die Spalten 3, 4 und 26.
+
+Eine weitere Möglichkeit besteht darin, die Funktion `range = cell_limits()` zu verwenden, um den Bereich der auszuwählenden Zellen genauer zu definieren. Beispielsweise kannst du damit einen bestimmten Bereich von Zellen im Datensatz festlegen.
+
+#### [Zeit um dein Wissen über das Filtern zu testen]{style="color:#005AAE;"}
+
+Filtere die Zeilen 5 bis 15 und Spalten 2 bis 5 und gebe dein Ergebnis aus
+
+```{r FilternUeben, exercise=TRUE}
+# Lade die benötigten Bibliotheken
+library(readxl)
+
+# Lade den Datensatz
+daten <- read_excel("data/First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx")
+
+# Filtere den Datensatz
+# Füge hier dein Filter ein
+
+# Ausgabe
+head(gefilterte_daten)
+```
+
+```{r FilternUeben-hint-1}
+Um zu Filtern musst du der Variable "gefilterte_daten" deine gefilterten Daten übergeben
+```
+
+```{r FilternUeben-solution}
+# Hier siehst du die LÖsung, wie du richtig filterst.
+
+# Lade die benötigten Bibliotheken
+library(readxl)
+
+# Lade den Datensatz
+daten <- read_excel("data/First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx")
+
+# Filtere den Datensatz
+gefilterte_daten <- daten[5:15, 2:5]
+
+# Ausgabe
+head(gefilterte_daten)
+```
+
+#### [**Dateninkonsistenz**]{style="color:#005AAE;"}
+
+Dateninkonsistenz, auch bekannt als Datenintegrität, bezieht sich auf die Korrektheit und Konsistenz der gespeicherten Daten. Damit Daten verarbeitet werden können, müssen sie konsistent sein, um Fehler zu vermeiden und die Datenqualität sicherzustellen. Häufige Beispiele für Inkonsistenzen sind unterschiedliche Formate bei Datumsangaben. Ein Datum kann zum Beispiel in verschiedenen Formaten vorliegen:
+
+```         
+2024.01.01
+2024-01-01
+01-01-2024
+01.01.2024
+usw.
+```
+
+Dateninkonsistenz kann die Datenanalyse erheblich beeinträchtigen, da unterschiedliche Formate und Darstellungen die Vergleichbarkeit und Verarbeitbarkeit der Daten erschweren. Daher ist es wichtig, vor der Verarbeitung eine einheitliche Struktur sicherzustellen.
+
+Hier ist ein Beispiel für einen NBA-Datensatz, bei dem festgelegt wurde, wie die verschiedenen Informationen über die NBA-Spieler standardisiert werden sollen:
+
+```         
+player - Spielername (Text: vollständiger Name des Spielers)
+pos - Position des Spielers (Text: Abkürzung der Position, z.B. 'SG' für Shooting Guard)
+age - Alter des Spielers (numerisch: Alter in Jahren, z.B. 24)
+experience - Spielerfahrung (numerisch: Anzahl der Jahre in der Liga, z.B. 2)
+tm - Team (Text: Abkürzung des Teams, z.B. 'MIL' für Milwaukee Bucks)
+```
+
+```{r echo=FALSE}
+head(data[, c(4, 6, 7, 8, 10)], n = 5)
+```
+
+Um Dateninkonsistenz zu vermeiden, solltest du im Vorfeld klare Regeln und Standards für die Dateneingabe definieren. Dazu gehört, dass du ein einheitliches Format für Datumsangaben festlegst, standardisierte Codes für Kategorien verwendest und sicherstellst, dass numerische Werte in einem vorgegebenen Bereich liegen. Du kannst auch automatisierte Tools und Algorithmen einsetzen, um Inkonsistenzen zu identifizieren und zu korrigieren, was dir den Aufwand und die Fehleranfälligkeit bei der manuellen Datenbereinigung reduziert.
+
+Zusätzlich ist es wichtig, dass du regelmäßige Überprüfungen und Validierungen der Daten durchführst, um sicherzustellen, dass sie weiterhin den festgelegten Standards entsprechen. Mit diesen Maßnahmen kannst du die Integrität der Daten wahren und die Grundlage für eine präzise und zuverlässige Datenanalyse schaffen.
+
+### [Impulation]{style="color:#005AAE;"}
+
+Fehlende oder offensichtlich falsche Daten können eine weitere Fehlerquelle darstellen. In solchen Fällen ist es sinnvoll, diese mit plausiblen Daten zu ersetzen. Wenn du beispielsweise eine Stichprobe oder eine Vollerhebung durchgeführt hast, bei der die Teilnehmer selbst ein Formular ausfüllen mussten, kann es vorkommen, dass wichtige Informationen wie dein Alter nicht korrekt angegeben wurden. Anstatt diese als "Not available" oder mit einer leeren Stelle zu belassen, solltest du darüber nachdenken, wie sich diese fehlenden Daten auf deine weitere Datenverarbeitung auswirken könnten.
+
+Wenn du beispielsweise den Durchschnittsalter berechnen möchtest, ist das Alter ein entscheidendes Merkmal. In solchen Fällen kannst du fehlende Werte durch plausible Schätzungen ersetzen, die entweder auf dem Mittelwert, Modus oder einer linearen Regression basieren. Weitere Informationen dazu findest du im Abschnitt "Datenanalyse".
+
+Hier sind zwei Optionen, wie du fehlende Daten ersetzen kannst:
+
+[Excel]{style="color:#005AAE;"}
+
+In Excel kannst du fehlende Daten anzeigen, indem du die Filterfunktion verwendest. Hierfür kannst du über zwei Wege gehen, entweder **Start -\> Sortieren und Filtern -\> Filtern** oder **Daten -\> Filtern**. Dadurch werden Filterpfeile neben jeder Spaltenüberschrift angezeigt. Klicke auf den Pfeil neben der Spalte, die leere Werte enthält, und wähle (Leere) aus der Dropdown-Liste aus. Dadurch werden alle Zeilen angezeigt, die leere Werte für dieses Merkmal haben.
+
+Nachdem du die fehlenden Daten identifiziert hast, kannst du entscheiden, ob sie deine weiteren Analysen beeinflussen könnten. Falls ja, kannst du die leeren Zellen einfach durch Eingabe von Daten ersetzen.
+
+[R]{style="color:#005AAE;"}
+
+In R kannst du fehlende Daten direkt mit einer Funktion ersetzen, ohne sie zuerst ausgeben zu lassen. Verwende dazu den folgenden Code: `variable <- replace(datensatz$Merkmal, datensatz$Merkmal == '', ersatz_wert)`.
+
+Hierbei wird der neue Datensatz in der Variable `variable` gespeichert, wobei **datensatz\$Merkmal** auf das zu ersetzende Merkmal verweist und ersatz_wert den Wert angibt, mit dem die leeren Zellen überschrieben werden sollen.
+
+Es ist auch wichtig zu prüfen, ob die fehlenden Daten auf eine bestimmte Teilstichprobe zurückzuführen sind. Um dennoch plausible Werte zu erhalten, könntest du die vorhandenen Daten dieser Teilstichprobe gewichten. Zum Beispiel könntest du die vorhandenen Daten der 22-jährigen Spielern verdoppeln, um die Gewichtung beizubehalten, falls die Hälfte der Daten dieser Gruppe fehlt.
+
+Durch diese Maßnahmen sicherst du die Qualität deiner Daten und schaffst eine zuverlässige Grundlage für deine Datenanalyse.
+
+#### [Zeit um dein Wissen über das Entfernen zu testen]{style="color:#005AAE;"}
+
+Das Merkmal "ft_percent" hat "not available = NA" Einträge im Datensatz. Versuche diese zu ersetzten durch den Mittelwert und danach zu überprüfen ob es korrekt ersetzt wurde.
+
+```{r Anzeigen VorAenderung, echo=FALSE}
+#Daten einlesen und in Variable speichern
+daten <- read_excel("data/First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx")
+# Filtere die Zeilen, in denen Spalte 26 entweder NA oder 0 ist
+gefilterte_daten <- daten[daten[, 26] == 0 | daten[,26] == "NA", c(3, 4, 26)]
+
+# Ausgabe 
+head(gefilterte_daten)
+```
+
+```{r not_available_entfernen, exercise=TRUE}
+daten <- read_excel("data/First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx")
+mittelwert_ft_percent <- 0.755729167
+
+# Gebe hier die Lösung ein und nutze den Datensatz "daten" um sowie die den Mittelwert "mittelwert_ft_percent"
+
+# Filtere die Zeilen, in denen "ft_percent" entweder 0 oder (ehemals) "NA" war
+gefilterte_daten <- daten[daten$ft_percent == 0 | daten$ft_percent == 0.755729167, c(3, 4, 26)]
+
+#Hier fehlt die Ausgabe
+```
+
+```{r not_available_entfernen-hint-1}
+Um die Werte NAs des Merkmals "ft_percent" zu ersetzen benötigen wir eine 
+abfrage über das Merkmal, wobei falls der Wert NA betrifft, der Mittelwert
+referenziert wird
+```
+
+```{r not_available_entfernen-hint-2}
+Da du schon die gefilterte_daten bekommst, musst du noch mithilfe des head() 
+diese Ausgeben
+```
+
+```{r not_available_entfernen-solution}
+# Hier ist die Lösung zu deinem Problem:
+
+daten <- read_excel("data/First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx")
+mittelwert_ft_percent <- 0.755729167
+
+# Ersetze die NA-Werte in der Spalte "ft_percent" durch den Mittelwert
+daten$ft_percent[daten$ft_percent == "NA"] <- mittelwert_ft_percent
+
+# Filtere die Zeilen, in denen "ft_percent" entweder 0 oder (ehemals) "NA" war
+gefilterte_daten <- daten[daten$ft_percent == 0 | daten$ft_percent == 0.755729167, c(3, 4, 26)]
+
+# Ausgabe der gefilterten Daten
+head(gefilterte_daten)
+```
 
 ## Datenanalyse
+
 In diesem Tutorial lernen Sie, wie Eigenschaften von Daten aufgerufen werden und wie diese Dargestellt werden.
 
 ### Mittelwert
+
 Berechnen Sie den Mittelwert mit `mean()` von `data`
 
 ```{r mean, exercise=TRUE}
@@ -49,14 +369,180 @@ mean()
 ```
 
 ### Median
+
 ### Varianz
+
 ### Standardabweichung
+
 ### Lineare Regression
+
 ### Hypothesentest
 
-## Ergebnispräsentation
+## [Ergebnispräsentation]{style="color:#0085ff;"}
+
+Die Ergebnsse deiner Analysen können auf unterschiedlichste Arten und Weisen visuell dargestellt werden. Die unterschiedlichen [**Visualisierungstechniken**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} helfen dabei auf den ersten Blick Muster, Auffälligkeiten und Zusammenhänge in den Daten zu erkennen. Die vier gängigsten Darstellungsarten sind: Der Boxplot, der Scatter Plot, das Säulendiagramm und Kreisdiagramme. In diesem Tutorial zeigen wir dir Schritt für Schritt wie man ein solches Diagramm erstellt um damit Daten zu visualisieren.
+
+### [Boxplot]{style="color:#005AAE;"}
+
+Der [**Boxplot**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} ist eine graphische Darstellung, die es uns ermöglicht die Verteilung der Daten anhand ihrer [**Quantile**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} zu identifizieren. Mit Hilfe dieser Visualisierungstechnik bist du also dazu in der Lage die Streuung der Daten, sowie potenzielle Ausreißer auf den ersten Blick zu erkennen.
+
+Da du nun konzeptionell verstanden hast was ein Boxplot ist und was sich mit dieser Visualisierungstechnik alles darstellen lässt kannst du damit fortfahren dir einen beispielhaften Boxplot anzeigen zu lassen. Um dies zu bewerkstelligen musst du nur folgenden Code ausführen:
+
+```{r boxplot-x3p_percent, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 9, fig.height=7}
+boxplot(x3p_percent, main = "Verteilung der 3-Punkte-Wurfquote",
+        ylab = "3-Punkte-Wurfquote", col = "blue")
+```
+
+### [Scatter Plot]{style="color:#005AAE;"}
+
+Der [**Scatter Plot**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} oder auch [**Streudiagramm**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} gennannt ermöglicht es dir die Relation bzw. Beziehung zwischen zwei Variablen adäquat darzustellen. Wichtig zu erwähnen ist es, dass jeder Datenpunt auf dem Diagramm ein Datenpaar darstellt. Ein solcher Scatter PLot bietet sich vorallem an wenn nach [**Korrelationen**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"}, Trends oder Mustern zwischen zwei Variablen gesucht wird. Ein Scatter Plot besteht aus:
+
+-   X-Achse - Die X-Achse repräsentiert in diesem Fall die unabhägigen Werte
+-   Y-Achse - Die Y-Achse repräsentiert in diesem Fall die abhängigen Werte
+-   Punkte - Der Datenpunkt stellt wie eben im Errklärtext erklärt jeweis ein Paar zwischen X- und Y-Werten
+
+Da du nun konzeptionell verstanden hast was ein Streudiagramm ist und was sich mit dieser Visualisierungstechnik alles darstellen lässt kannst du damit fortfahren dir ein beispielhaftes Streudiagramm anzeigen zu lassen. Um dies zu bewerkstelligen musst du nur folgenden Code ausführen:
+
+```{r scatter-plot, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 10, fig.height=7}
+plot(x3pa_per_game, x3p_percent, col="blue", main = "3-Punkte-Würfe: Anzahl der Versuche vs. Erfolgsquote",
+     cex=1.3, pch=16, xlab="Anzahl der 3-Punkte-Wurfversuche pro Spiel", ylab = "3-Punkte-Wurfquote")
+```
+
+### [Säulendiagramm]{style="color:#005AAE;"}
+
+Das [**Säulendiagramm**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} wird meistens genutzt, um durch die Höhe der Säulen, Häufigkeiten oder Werte der jeweiligen Kategorie darzustellen. Sie sind besonderns nützlich wenn es darum geht [**absolute Häufigeit**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} verschiedener Gruppen und Kategorien zu visualisieren und zu vergleichen.
+
+Da du nun konzeptionell verstanden hast was ein Säulendiagramm ist und was sich mit dieser Visualisierungstechnik alles darstellen lässt kannst du damit fortfahren dir ein beispielhaftes Säulendiagramm anzeigen zu lassen. Um dies zu bewerkstelligen musst du nur folgenden Code ausführen:
+
+```{r bar-plot, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 10, fig.height=7}
+barplot(haeufigkeit, names.arg = positions, col = "blue", 
+        main = "Verteilung der besetzten Positionen", 
+        xlab = "Position", ylab = "Häufigkeit")
+```
+
+### [Kreisdiagramm]{style="color:#005AAE;"}
+
+Das [**Kreisdiagramm**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} wird anders als das Säulendiagramm häufig dafür genutzt, um die [**relative Häufigeit**]{style="color:#003260; text-decoration: underline; text-decoration-thickness:2px;"} bestimmter Werte der jeweiligen Kategorien und Gruppen zu visualisieren. Sie sind also besonders nützlich wenn man beispielsweise die Verteilung von verschiedenen Kategorien innerhalb einer Gesamtmenge vergleichen möchte. Dies ermöglicht es dir beispielsweise auf den ersten Blick zu erkennnen welche Kategorie den größten bzw. welche Kategorie den kleinsten Anteil ausmacht.
+
+Da du nun konzeptionell verstanden hast was ein Kreisdiagramm ist und was sich mit dieser Visualisierungstechnik alles darstellen lässt kannst du damit fortfahren dir ein beispielhaftes Kreisdiagramm anzeigen zu lassen. Um dies zu bewerkstelligen musst du nur folgenden Code ausführen:
+
+```{r pie-chart, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 10, fig.height=7}
+pie(haeufigkeit, labels = positions, col = rainbow(length(positions)), 
+    main = "Verteilung der besetzten Positionen")
+```
+
+## [Quiztime - Test dein Wissen]{style="color:#0085ff;"}
+
+Um noch einmal abschließend dein Wissen zu testen haben wir einige Fragen für dich vorbreitet, die dein im Laufe des Tutorials erworbenes Wissen abschließend noch einmal testen soll.
+
+VIEL SPAß :)
+
+```{r DatenaufbereitungGrundlagen, echo=FALSE}
+question("Worauf solltest du achten bevor du mit einem NBA-Datensatz arbeitest? (Wähle alle zutreffenden aus!)",
+    answer("Richtiges Format", correct = TRUE),
+    answer("Dateninkonsistenzen", correct = TRUE),
+    answer("Relevante Daten", correct = TRUE),
+        incorrect = "Es scheint du hast eine Antwort übersehen",
+    submit_button = "Senden",
+    try_again_button = "Nochmal",
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
+
+```{r quiz1, echo=FALSE}
+question("Unter welchen Umständen bietet sich ein Scatter Plot (Streudiagramm) an?",
+  answer("Wenn ich die anhand des Diagramms die absoluten Häufigkeiten ablesen möchte"),
+  answer("Wenn ich ermitteln möchte, ob der Datensatz über Ausreißerwerte verfügt oder nicht",     correct = TRUE),
+  answer("Wenn ich bestimmen möchte, ob der Datensatz eine gewisse Korrelation aufweist", correct     = TRUE),
+  answer("Wenn ich bestimmen möchte ob der Datensatz über fehlende Werte verfügt"),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
+
+```{r quizEinfuegen, echo=FALSE}
+question("Welche Funktion wird genutzt, um XLSX-Dateien in R einzulesen?",
+  answer("read_excel", correct = TRUE),
+  answer("load_excel"),
+  answer("import_excel"),
+  incorrect = "Diese Funktion existiert nicht in R.",
+  submit_button = "Senden",
+  try_again_button = "Nochmal",
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
 
 
-## Teaminfos
+```{r Teilstichprobe, echo=FALSE}
+question("Welches Merkmal aus dem NBA-Datensatz könnte verwendet werden, um eine sinnvolle Teilstichprobe zu bilden? (Wähle alle zutreffenden aus!)",
+    answer("Position", correct = TRUE),
+    answer("Team", correct = TRUE),
+    answer("Alter", correct = TRUE),
+    answer("Erfahrung", correct = TRUE),
+    incorrect = "Es scheint du hast eins übersehen",
+    submit_button = "Senden",
+    try_again_button = "Nochmal",
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
 
+```{r quiz2, echo=FALSE}
+question("Welche Ergebnispräsentation bietet sich beim bestimmen der Relation zwischen Variablen am besten an?",
+  answer("Kreisdiagramm"),
+  answer("Boxplot"),
+  answer("Scatter Plot", correct = TRUE),
+  answer("Säulendiagramm"),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
 
+```{r quiz3, echo=FALSE}
+question("Was lässt sich mit Kreisdiagrammen optimal darstellen?",
+  answer("Anzahl der Daten"),
+  answer("Relationen und Zusammenhänge"),
+  answer("Absolute Häufigkeiten"),
+  answer("Relative Häufigkeiten", correct = TRUE),
+  allow_retry = TRUE,
+  random_answer_order = TRUE
+)
+```
+
+```{r Loeschen, echo=FALSE}
+question("Wenn in einem Merkmal fehlende Daten vorliegen, wie solltest du diese am besten ersetzen?",
+    answer("Ich überlege mir passende Werte oder nutze den Mittelwert", correct = TRUE, message="Ein guter Ansatz ist, fehlende Werte durch die passenden berchneten Werte oder den Mittelwert zu ersetzen, um die Daten konsistent zu halten."),
+    answer("Ich nutze irgendein Wert", correct = FALSE, message = "Das Setzen von irgendeinem Wert führt zu Verzerrungen bei den nachfolgenden Analysen."),
+    answer("Warum ersetzen? ich muss nichts berücksichtigen", correct = FALSE, message = "Beachte, dass du immer die fehlenden Daten berücksichtigen und behandeln musst. Hierfür kannst du dir auch das Kapitel ``Imputation`` erneut anschauen."),
+    submit_button = "Senden",
+    try_again_button = "Nochmal",
+    allow_retry = TRUE,
+    random_answer_order = TRUE
+  )
+```
+
+## [Teamaufteilung]{style="color:#0085ff;"}
+
+Einführung und Infos \~ Philipp Fiesel, Enzo Famboupé Abbas
+
+Datenbasis \~ Enzo Famboupé Abbas
+
+Datenaufbereitung \~ Philip Fiesel
+
+Datenanalyse \~ Dennis Messmer
+
+Datenvisualisierung \~ Enzo Famboupé Abbas
+
+Quiz \~ Enzo Famboupé Abbas, Dennis Messmer, Philipp Fiesel
+
+## [Quellen]{style="color:#0085ff;"}
+
+#### [Einführung und Infos]{style="color:#005AAE;"}
+
+<https://www.youtube.com/watch?v=YGqZoYccIiY&ab_channel=FlorianDalwigk>
+
+#### [Datenaufbereitung]{style="color:#005AAE;"}
+
+<https://www.youtube.com/watch?v=Ia5Q1LlCCFc>
