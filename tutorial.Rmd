@@ -7,9 +7,16 @@ runtime: shiny_prerendered
 ```{r setup, include=FALSE}
 library(learnr)
 library(readxl)
+library(tidyverse)
+library(psych)
 
 file_path <- "Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx"
 data <- read_excel(file_path, sheet = "Player Per Game", range = cell_limits(c(1, 1), c(2914, 35)))
+
+code_checker <- function(label, user_code, check_code, envir_result, evaluate_result, ...) {
+  list(message = check_code, correct = TRUE, location = "append")
+}
+tutorial_options(exercise.timelimit = 10, exercise.checker = code_checker)
 
 pos <- data$pos
 x3pa_per_game <- data$x3pa_per_game
@@ -95,9 +102,7 @@ In diesem Fall haben wir uns zwei Hypothesen gesucht, um den Datensatz näher zu
 
 1.  „Die Spieler der Boston Celtics werfen diese Saison im Schnitt mehr Dreier pro Spiel als die Spieler der Orlando Magic“
 
-2.  „Die Anzahl von Dreierwurfversuchen ist in den letzten 3 Jahren angestiegen“
-
-3.  „Der Schnitt erzielter Punkte pro Spiel ist in den letzten 10 Jahren kontinuierlich angestiegen“
+2.  „Die durchschnittliche Anzahl von Punkten pro Spiel (pts_per_game) unterscheidet sich signifikant zwischen Spielern unterschiedlichen Alters.“
 
 ## [Datenaufbereitung]{style="color:#0085FF;"}
 
@@ -157,37 +162,37 @@ Wenn du eine csv-Datei einlesen möchtest funktioniert das vom Prinzip gleich, j
 
 Lese die Excel-Datei "First100_Player_Per_Game_Enzo_Famboupe_Abbas_Datensatz.xlsx" ein und zeige die ersten Zeilen an.
 
-```{r print-limit, exercise=TRUE, exercise.eval=TRUE}
-#Füge hier den Auszuführenden Code ein
+```{r print-limit, exercise=TRUE}
+# Füge hier den Auszuführenden Code ein
 ```
 
 ```{r print-limit-hint-1}
-Schritt 1: 
-Zunächst benötigen wir die richtige library um einlesen zu können. Da wir 
-eine xlsx Datei einlesen wollen, nutzen wir also die library(readxl)
+# Schritt 1: 
+# Zunächst benötigen wir die richtige library um einlesen zu können. Da wir 
+# eine xlsx Datei einlesen wollen, nutzen wir also die library(readxl)
 ```
 
 ```{r print-limit-hint-2}
-Du weißt noch nicht wie du weiter machen sollst? kein Problem ;)
+# Du weißt noch nicht wie du weiter machen sollst? kein Problem ;)
 
-Schritt 2:
-Lese die Excel-Datei ein indem du deiner gewählten Variablen die 
-Funktion read_excel() mit dem gewünschten Pfad.
+# Schritt 2:
+# Lese die Excel-Datei ein indem du deiner gewählten Variablen die 
+# Funktion read_excel() mit dem gewünschten Pfad.
 
-Hinweis: Verwende den relativen Pfad 'data/Dateiname'
+# Hinweis: Verwende den relativen Pfad 'data/Dateiname'
 ```
 
 ```{r print-limit-hint-3}
-Fast geschafft! 
+# Fast geschafft! 
   
-Gib nicht auf, für unseren letzten Schritt 3 wollen wir nun überprüfen ob das 
-Einfügen erfolgreich war. Hierfür nutzt du head() und deinem Variablennamen
-aus Schritt 2.
+# Gib nicht auf, für unseren letzten Schritt 3 wollen wir nun überprüfen ob das 
+# Einfügen erfolgreich war. Hierfür nutzt du head() und dein Variablennamen
+# aus Schritt 2.
 ```
 
 ```{r print-limit-hint-4}
-Achtung du kommst immernoch nicht weiter und weißt nicht was du machen sollst?
-Klick mich weiter und die Lösung erscheint :o
+# Achtung du kommst immernoch nicht weiter und weißt nicht was du machen sollst?
+# Klick mich weiter und die Lösung erscheint :o
 ```
 
 ```{r print-limit-solution, show_col_types = FALSE}
@@ -228,11 +233,12 @@ head(gefilterte_daten)
 ```
 
 ```{r FilternUeben-hint-1}
-Um zu Filtern musst du der Variable "gefilterte_daten" deine gefilterten Daten übergeben
+# Um zu Filtern musst du der Variable "gefilterte_daten" deine gefilterten Daten 
+# übergeben
 ```
 
 ```{r FilternUeben-solution}
-# Hier siehst du die LÖsung, wie du richtig filterst.
+# Hier siehst du die Lösung, wie du richtig filterst.
 
 # Lade die benötigten Bibliotheken
 library(readxl)
@@ -330,14 +336,14 @@ gefilterte_daten <- daten[daten$ft_percent == 0 | daten$ft_percent == 0.75572916
 ```
 
 ```{r not_available_entfernen-hint-1}
-Um die Werte NAs des Merkmals "ft_percent" zu ersetzen benötigen wir eine 
-abfrage über das Merkmal, wobei falls der Wert NA betrifft, der Mittelwert
-referenziert wird
+# Um die Werte NAs des Merkmals "ft_percent" zu ersetzen benötigen wir eine 
+# abfrage über das Merkmal, wobei falls der Wert NA betrifft, der Mittelwert
+# referenziert wird
 ```
 
 ```{r not_available_entfernen-hint-2}
-Da du schon die gefilterte_daten bekommst, musst du noch mithilfe des head() 
-diese Ausgeben
+# Da du schon die gefilterte_daten bekommst, musst du noch mithilfe des head() 
+# diese Ausgeben
 ```
 
 ```{r not_available_entfernen-solution}
@@ -356,27 +362,207 @@ gefilterte_daten <- daten[daten$ft_percent == 0 | daten$ft_percent == 0.75572916
 head(gefilterte_daten)
 ```
 
-## Datenanalyse
+## [Datenanalyse]{style="color:#0085FF;"}
 
-In diesem Tutorial lernen Sie, wie Eigenschaften von Daten aufgerufen werden und wie diese Dargestellt werden.
+In diesem Tutorial lernst du, wie Eigenschaften von Daten aufgerufen werden und wie diese Dargestellt werden. Du wirst Mittelwert, Median, Varianz, Standardabweichung und die Lineare Regression berechnen, sowie Hypothesentests durchführen.
 
-### Mittelwert
+Dafür ist der folgende Ausschnitt des Datensatzes `data` gegeben (Zeile 32-35).
 
-Berechnen Sie den Mittelwert mit `mean()` von `data`
+
+
+
+### [**Player Per Game** - Datensatz]{style="color:#005AAE;"}
+
+``` {r table, echo=FALSE}
+head(data[, 32:35], n = 5)
+```
+
+
+
+### [Mittelwert]{style="color:#005AAE;"}
+
+* Berechne den Mittelwert mit der Funktion `mean()` von der Spalte `pts_per_game`
 
 ```{r mean, exercise=TRUE}
 mean()
 ```
 
-### Median
+```{r mean-solution}
+1.574047
+```
 
-### Varianz
+``` {r mean-hint}
+# Über "$" kannst du auf die Spalten aus einem Datensatz zugreifen
+data$pf_per_game
+```
 
-### Standardabweichung
+```{r mean-check}
+Richtig!
+```
 
-### Lineare Regression
 
-### Hypothesentest
+
+### [Median und Quantile]{style="color:#005AAE;"}
+
+Gegeben ist die Spalte `pts_per_game` aus dem Datensatz `data`.
+
+* Berechne den Median mit der Funktion `median()`.
+
+* Berechne die Quantile Q1, Q2, Q3 mit der Funktion `quantile()`. Die funktion nimmt als erstes Parameter den Datensatz und als zweites die Quantile (25%, 50%, 75%). Übergebe die Quantile in Form eines Vektors, also beispielsweise: `quantileVec <- c(0.25, 0.5, 0.75)`.
+
+* Berechne den Interquartilsabstand mit der Funktion `IQR()`
+
+* Gib den Median und die berechneten Quantile aus.
+
+```{r median, exercise=TRUE}
+# Median
+median <- 
+
+# Quantile
+quantile <- 
+
+# Interquartalabstand
+iqr <- 
+
+# Ausgabe
+print(quantile)
+print(median)
+print(iqr)
+```
+
+```{r median-solution}
+median(data$pts_per_game)
+quantile(data$pts_per_game, probs = c(0.25, 0.5, 0.75))
+```
+
+```{r median-check}
+Richtig!
+```
+
+
+
+### [Varianz und Standardabweichung]{style="color:#005AAE;"}
+
+Die Varianz misst die Streuung der Daten um den Mittelwert. Sie ist der Durchschnitt der quadrierten Abweichungen vom Mittelwert:
+
+Eine hohe Varianz bedeutet, dass die Daten weit auseinander liegen, während eine niedrige Varianz darauf hinweist, dass die Daten eng beieinander liegen.
+
+Die Standardabweichung ist die Quadratwurzel der Varianz und gibt die durchschnittliche Abweichung der Datenwerte vom Mittelwert an:
+
+Die Standardabweichung ist ein Maß für die Streuung der Daten. Sie wird oft verwendet, weil sie in denselben Einheiten wie die ursprünglichen Daten gemessen wird, was die Interpretation erleichtert.
+
+* Berechne die Varianz mit `var()` aus dem Datensatz `data` und der Spalte `pts_per_game`.
+
+* Berechne die Standardabweichnung mit `sd()` aus dem Datensatz `data` und der Spalte `pts_per_game`.
+
+* Berechne die Wurzel der Varianz mit `sqrt()`.
+
+```{r var, exercise=TRUE}
+# Varianz
+variance <- 
+  
+# Standardabweichung
+std_dev <- 
+
+# Wurzel der Varianz
+sqrt_var <- 
+
+# Ausgabe
+print(variance)
+print(std_dev)
+print(sqrt_var)
+```
+
+
+
+### [Lineare Regression]{style="color:#005AAE;"}
+
+Die lineare Regression ist eine statistische Methode, mit der die Beziehung zwischen einer abhängigen Variablen (auch Zielvariable genannt) und einer oder mehreren unabhängigen Variablen (auch Prädiktoren oder Merkmale genannt) modelliert wird. Das Ziel der linearen Regression ist es, eine lineare Gleichung zu finden, die die Daten am besten beschreibt.
+
+Die allgemeine Form einer einfachen linearen Regression (mit einer unabhängigen Variablen) lautet:
+
+$y= a+ bx$
+
+Durch diese kann beispielsweise die Funktion
+
+$F(a, b) = \sum_{i=1}^{n} (a + bx_i - y_i)^2 \rightarrow \min$
+
+minimiert werden, indem die Gerade so bestimmt wird, dass Abweichungen zu den Beobachtungspaaren möglichst klein werden.
+
+Die Gerade kann auch in einem Streudiagramm dargestellt werden, welche die Datenpunkte auf einem Streudiagramm so gut wie möglich beschreibt.
+
+```{r,exercise=FALSE, fig.width = 9, fig.height=7}
+plot(data$age, data$pts_per_game,
+     xlab = "Age", 
+     ylab = "Points per game", 
+     main = "Streudiagramm - Lineare Regression",
+)
+abline(lm(data$pts_per_game ~ data$age, data = data))
+```
+
+
+### [Hypothesentests]{style="color:#005AAE;"}
+
+Der Hypothesentest ist ein statistisches Verfahren, um zu entscheiden, ob eine Annahme (Hypothese) über eine Datenmenge auf Basis von Stichprobendaten angenommen oder abgelehnt wird.
+
+Im der Datenbasis wurden Hypothesen aufgestellt. Diese werden hier jetzt durch Hypothesentests bewiesen. 
+
+* Hypothese 1: „**Die Spieler der Boston Celtics werfen diese Saison im Schnitt mehr Dreier pro Spiel als die Spieler der Orlando Magic**“
+
+* Hypothese 2: **Die durchschnittliche Anzahl von Punkten pro Spiel (pts_per_game) unterscheidet sich signifikant zwischen Spielern unterschiedlichen Alters.**
+
+Im folgenden Video findest du eine Anleitung wie du einen Hypothesentest durchführen kannst.
+
+![](https://www.youtube.com/watch?v=3Yz-XNRasGM){width="80%"}
+
+In R kann man den Hypothesen mit dem t-Test beweisen. Dafür können wir die Funktion `t.test()` verwenden. Dabei muss der p-Wert (p-value) kleiner als 0.05 sein, damit die Hypothese erfüllt ist.
+
+So lässt sich [**Hypothese 1**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} mit `t.test(boston, orlando, var.equal = TRUE, alternative = "greater")` wiederlegen, da für den p-Wert $0.3331>0.05$ raus kommt.
+
+``` {r t-test1, exercise=FALSE, echo=FALSE}
+boston <- data$x3p_per_game[data$tm == "BOS"]
+orlando <- data$x3p_per_game[data$tm == "ORL"]
+
+# Ensure both vectors have data and are of equal length
+if (length(boston) > 0 && length(orlando) > 0) {
+  # Limit to the minimum length of the two vectors, if needed
+  n <- min(length(boston), length(orlando))
+  boston <- boston[1:n]
+  orlando <- orlando[1:n]
+  
+  # Perform the t-test
+  t.test(boston, orlando, var.equal = TRUE, alternative = "greater")
+} else {
+  print("Error: No data available for one or both teams.")
+}
+```
+
+[**Hypothese 2**]{style="color:#003260; text-decoration: underline;  text-decoration-thickness: 2px;"} lässt sich ebenso mit dem t-Test berechnen:
+
+`t.test(pts_per_game, age, var.equal = TRUE, alternative = "two.sided")`
+
+Es stellt sich heraus, dass die Hypothese wahr ist, da der p-Wert weit unter 0.05 ist.
+
+``` {r t-test2, exercise=FALSE, echo=FALSE}
+pts_per_game <- data$pts_per_game
+age <- data$age
+
+
+# Ensure both vectors have data and are of equal length
+if (length(pts_per_game) > 0 && length(age) > 0) {
+  # Limit to the minimum length of the two vectors, if needed
+  n <- min(length(pts_per_game), length(age))
+  pts_per_game <- pts_per_game[1:n]
+  age <- age[1:n]
+  
+  describeBy(pts_per_game, age)
+  
+  # Perform the t-test
+  t.test(pts_per_game, age, var.equal = TRUE, alternative = "two.sided")
+} else {
+  print("Error: No data available for one or both teams.")
+}
+```
 
 ## [Ergebnispräsentation]{style="color:#0085ff;"}
 
@@ -403,7 +589,7 @@ Der [**Scatter Plot**]{style="color:#003260; text-decoration: underline; text-de
 
 Da du nun konzeptionell verstanden hast was ein Streudiagramm ist und was sich mit dieser Visualisierungstechnik alles darstellen lässt kannst du damit fortfahren dir ein beispielhaftes Streudiagramm anzeigen zu lassen. Um dies zu bewerkstelligen musst du nur folgenden Code ausführen:
 
-```{r scatter-plot, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 10, fig.height=7}
+```{r scatter-plot, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 9, fig.height=7}
 plot(x3pa_per_game, x3p_percent, col="blue", main = "3-Punkte-Würfe: Anzahl der Versuche vs. Erfolgsquote",
      cex=1.3, pch=16, xlab="Anzahl der 3-Punkte-Wurfversuche pro Spiel", ylab = "3-Punkte-Wurfquote")
 ```
@@ -414,7 +600,7 @@ Das [**Säulendiagramm**]{style="color:#003260; text-decoration: underline; text
 
 Da du nun konzeptionell verstanden hast was ein Säulendiagramm ist und was sich mit dieser Visualisierungstechnik alles darstellen lässt kannst du damit fortfahren dir ein beispielhaftes Säulendiagramm anzeigen zu lassen. Um dies zu bewerkstelligen musst du nur folgenden Code ausführen:
 
-```{r bar-plot, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 10, fig.height=7}
+```{r bar-plot, exercise=TRUE, echo=FALSE, cache=FALSE, fig.width = 9, fig.height=7}
 barplot(haeufigkeit, names.arg = positions, col = "blue", 
         main = "Verteilung der besetzten Positionen", 
         xlab = "Position", ylab = "Häufigkeit")
@@ -442,7 +628,7 @@ question("Worauf solltest du achten bevor du mit einem NBA-Datensatz arbeitest? 
     answer("Richtiges Format", correct = TRUE),
     answer("Dateninkonsistenzen", correct = TRUE),
     answer("Relevante Daten", correct = TRUE),
-        incorrect = "Es scheint du hast eine Antwort übersehen",
+    incorrect = "Es scheint du hast eine Antwort übersehen",
     submit_button = "Senden",
     try_again_button = "Nochmal",
     allow_retry = TRUE,
@@ -450,7 +636,17 @@ question("Worauf solltest du achten bevor du mit einem NBA-Datensatz arbeitest? 
   )
 ```
 
-```{r quiz1, echo=FALSE}
+```{r Mittelwert, echo=FALSE}
+  question(
+    "Wie berechnet man den Mittelwert einer Datenreihe?",
+    answer("Summe aller Werte"),
+    answer("Summe aller Werte dividiert durch die Anzahl der Werte", correct = TRUE),
+    answer("Der häufigste Wert in der Datenreihe"),
+    answer("Der mittlere Wert in einer geordneten Datenreihe")
+  )
+```
+
+```{r ScatterPlot, echo=FALSE}
 question("Unter welchen Umständen bietet sich ein Scatter Plot (Streudiagramm) an?",
   answer("Wenn ich die anhand des Diagramms die absoluten Häufigkeiten ablesen möchte"),
   answer("Wenn ich ermitteln möchte, ob der Datensatz über Ausreißerwerte verfügt oder nicht",     correct = TRUE),
@@ -461,7 +657,7 @@ question("Unter welchen Umständen bietet sich ein Scatter Plot (Streudiagramm) 
 )
 ```
 
-```{r quizEinfuegen, echo=FALSE}
+```{r Einfuegen, echo=FALSE}
 question("Welche Funktion wird genutzt, um XLSX-Dateien in R einzulesen?",
   answer("read_excel", correct = TRUE),
   answer("load_excel"),
@@ -474,6 +670,25 @@ question("Welche Funktion wird genutzt, um XLSX-Dateien in R einzulesen?",
 )
 ```
 
+```{r Median, echo=FALSE}
+  question(
+    "Was ist der Median einer Datenreihe?",
+    answer("Der höchste Wert in der Datenreihe"),
+    answer("Der häufigste Wert in der Datenreihe"),
+    answer("Der mittlere Wert in einer geordneten Datenreihe", correct = TRUE),
+    answer("Die Summe aller Werte dividiert durch die Anzahl der Werte")
+  )
+```
+
+```{r Varainz, echo=FALSE}
+  question(
+    "Was misst die Varianz in einer Datenreihe?",
+    answer("Die Summe aller Werte"),
+    answer("Die Streuung der Datenwerte um den Mittelwert", correct = TRUE),
+    answer("Den höchsten Wert in der Datenreihe"),
+    answer("Den mittleren Wert in einer geordneten Datenreihe")
+  )
+```
 
 ```{r Teilstichprobe, echo=FALSE}
 question("Welches Merkmal aus dem NBA-Datensatz könnte verwendet werden, um eine sinnvolle Teilstichprobe zu bilden? (Wähle alle zutreffenden aus!)",
@@ -489,7 +704,17 @@ question("Welches Merkmal aus dem NBA-Datensatz könnte verwendet werden, um ein
   )
 ```
 
-```{r quiz2, echo=FALSE}
+```{r Standartabweichung, echo=FALSE}
+  question(
+    "Was ist die Standardabweichung einer Datenreihe?",
+    answer("Die Quadratwurzel der Varianz", correct = TRUE),
+    answer("Die Summe aller Werte dividiert durch die Anzahl der Werte"),
+    answer("Der häufigste Wert in der Datenreihe"),
+    answer("Der mittlere Wert in einer geordneten Datenreihe")
+  )
+```
+
+```{r Ergebnispraesentation, echo=FALSE}
 question("Welche Ergebnispräsentation bietet sich beim bestimmen der Relation zwischen Variablen am besten an?",
   answer("Kreisdiagramm"),
   answer("Boxplot"),
@@ -500,7 +725,7 @@ question("Welche Ergebnispräsentation bietet sich beim bestimmen der Relation z
 )
 ```
 
-```{r quiz3, echo=FALSE}
+```{r Kreisdiagramm, echo=FALSE}
 question("Was lässt sich mit Kreisdiagrammen optimal darstellen?",
   answer("Anzahl der Daten"),
   answer("Relationen und Zusammenhänge"),
@@ -511,8 +736,18 @@ question("Was lässt sich mit Kreisdiagrammen optimal darstellen?",
 )
 ```
 
+```{r lineareRegression, echo=FALSE}
+  question(
+    "Wofür wird die lineare Regression verwendet?",
+    answer("Um die Summe aller Werte zu berechnen"),
+    answer("Um den mittleren Wert in einer geordneten Datenreihe zu finden"),
+    answer("Um die Beziehung zwischen zwei oder mehr Variablen zu modellieren"),
+    answer("Um die Streuung der Datenwerte um den Mittelwert zu messen", correct = TRUE)
+  )
+```
+
 ```{r Loeschen, echo=FALSE}
-question("Wenn in einem Merkmal fehlende Daten vorliegen, wie solltest du diese am besten ersetzen?",
+    question("Wenn in einem Merkmal fehlende Daten vorliegen, wie solltest du diese am besten ersetzen?",
     answer("Ich überlege mir passende Werte oder nutze den Mittelwert", correct = TRUE, message="Ein guter Ansatz ist, fehlende Werte durch die passenden berchneten Werte oder den Mittelwert zu ersetzen, um die Daten konsistent zu halten."),
     answer("Ich nutze irgendein Wert", correct = FALSE, message = "Das Setzen von irgendeinem Wert führt zu Verzerrungen bei den nachfolgenden Analysen."),
     answer("Warum ersetzen? ich muss nichts berücksichtigen", correct = FALSE, message = "Beachte, dass du immer die fehlenden Daten berücksichtigen und behandeln musst. Hierfür kannst du dir auch das Kapitel ``Imputation`` erneut anschauen."),
@@ -546,3 +781,7 @@ Quiz \~ Enzo Famboupé Abbas, Dennis Messmer, Philipp Fiesel
 #### [Datenaufbereitung]{style="color:#005AAE;"}
 
 <https://www.youtube.com/watch?v=Ia5Q1LlCCFc>
+
+#### [Datenanalyse]{style="color:#005AAE;"}
+
+<https://www.youtube.com/watch?v=3Yz-XNRasGM>
